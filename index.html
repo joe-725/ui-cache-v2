@@ -1,189 +1,63 @@
-
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>칭다오 2박 3일 일정 지도</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
-  body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
-  #map { height:100vh; width:100vw; }
-  .panel {
-    position:absolute; top:12px; left:12px; z-index:1000; background:white; padding:12px;
-    border-radius:12px; box-shadow:0 4px 16px rgba(0,0,0,.18); width:380px; max-width:calc(100vw - 40px);
-    max-height:calc(100vh - 40px); overflow:auto;
-  }
-  .toggle-panel {
-    display:none;
-    position:absolute; right:12px; top:12px; z-index:1001;
-    border:none; background:#1f6feb; color:white; border-radius:999px;
-    padding:10px 12px; font-weight:800; box-shadow:0 4px 16px rgba(0,0,0,.2);
-  }
-  .panel.collapsed {
-    width:auto; max-width:calc(100vw - 90px); max-height:48px; overflow:hidden;
-    padding:10px 12px;
-  }
-  .panel.collapsed h1 { margin:0; font-size:15px; }
-  .panel.collapsed #buttons,
-  .panel.collapsed .hint,
-  .panel.collapsed #summary,
-  .panel.collapsed #stopList { display:none; }
-
-  @media (max-width: 640px) {
-    .toggle-panel { display:block; }
-    .panel {
-      top:12px; left:12px; right:12px; width:auto; max-width:none;
-      max-height:46vh;
-    }
-  }
-  .panel h1 { font-size:18px; margin:0 0 8px; }
-  .panel p { margin:6px 0; font-size:13px; color:#444; line-height:1.35; }
-  button {
-    margin:4px 4px 4px 0; padding:8px 10px; border:1px solid #ddd; border-radius:999px;
-    background:#fff; cursor:pointer; font-weight:600;
-  }
-  button.active { background:#1f6feb; color:white; border-color:#1f6feb; }
-  .legend { font-size:13px; margin-top:8px; }
-  .stop-list { margin-top:10px; border-top:1px solid #eee; padding-top:8px; }
-  .stop-item {
-    display:grid; grid-template-columns:28px 1fr; gap:8px; align-items:start;
-    padding:8px 6px; border-radius:10px; cursor:pointer; border:1px solid transparent;
-  }
-  .stop-item:hover { background:#f4f7ff; border-color:#d9e4ff; }
-  .stop-num {
-    width:24px; height:24px; border-radius:50%; color:#fff; display:flex; align-items:center;
-    justify-content:center; font-weight:800; font-size:13px; margin-top:1px;
-  }
-  .stop-name { font-size:14px; font-weight:700; line-height:1.25; }
-  .stop-cn { font-size:12px; color:#666; margin-top:2px; }
-  .hint { font-size:12px; color:#666; }
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+#map{height:100vh;width:100vw}
+.panel{position:absolute;top:12px;left:12px;z-index:1000;background:white;padding:12px;border-radius:12px;box-shadow:0 4px 16px rgba(0,0,0,.18);width:420px;max-width:calc(100vw - 40px);max-height:calc(100vh - 40px);overflow:auto}
+.panel h1{font-size:18px;margin:0 0 8px}
+button{margin:4px 4px 4px 0;padding:8px 10px;border:1px solid #ddd;border-radius:999px;background:#fff;cursor:pointer;font-weight:700}
+button.active{background:#1f6feb;color:white;border-color:#1f6feb}
+.toggle-panel{display:none;position:absolute;right:12px;top:12px;z-index:1001;border:none;background:#1f6feb;color:white;border-radius:999px;padding:10px 12px;font-weight:800;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.panel.collapsed{width:auto;max-width:calc(100vw - 90px);max-height:48px;overflow:hidden;padding:10px 12px}
+.panel.collapsed h1{margin:0;font-size:15px}
+.panel.collapsed #buttons,.panel.collapsed #summary,.panel.collapsed #stopList{display:none}
+.summary{font-size:13px;color:#444;margin:8px 2px;line-height:1.4}
+.stop-list{margin-top:8px;border-top:1px solid #eee;padding-top:8px}
+.stop-item{display:grid;grid-template-columns:28px 1fr;gap:8px;align-items:start;padding:8px 6px;border-radius:10px;cursor:pointer;border:1px solid transparent}
+.stop-item:hover{background:#f4f7ff;border-color:#d9e4ff}
+.stop-num{width:24px;height:24px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;margin-top:1px}
+.stop-time{font-size:12px;color:#666;margin-bottom:2px}
+.stop-name{font-size:14px;font-weight:750;line-height:1.25}
+.stop-cn{font-size:12px;color:#666;margin-top:2px}
+.stop-meta{font-size:12px;color:#444;margin-top:3px;line-height:1.35}
+@media (max-width:640px){.toggle-panel{display:block}.panel{top:12px;left:12px;right:12px;width:auto;max-width:none;max-height:46vh}}
 </style>
 </head>
 <body>
 <div id="map"></div>
 <button class="toggle-panel" id="togglePanel">목록 접기</button>
 <div class="panel" id="panel">
-  <h1>칭다오 일정 지도</h1>
-  <div id="buttons"></div>
-  
-  <div class="legend" id="summary"></div>
-  <div class="stop-list" id="stopList"></div>
-  
+<h1>칭다오 2박 3일 일정 지도</h1>
+<div id="buttons"></div>
+<div class="summary" id="summary"></div>
+<div class="stop-list" id="stopList"></div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-const days = {"DAY 1 · 5/16": [["칭다오 자오둥 국제공항", "青岛胶东国际机场", 36.3619, 120.0882], ["샹그릴라 호텔", "香格里拉大酒店", 36.0669, 120.3841], ["MIXC 만상성", "万象城", 36.0664, 120.3825], ["대학로 포토존", "大学路网红墙", 36.0646, 120.3218], ["소어산 전망대", "小鱼山观景台", 36.0586, 120.3301], ["해천뷰타워", "海天云上", 36.0579, 120.3766], ["타이동 야시장", "台东夜市", 36.0847, 120.3556], ["샹그릴라 호텔", "香格里拉大酒店", 36.0669, 120.3841]], "DAY 2 · 5/17": [["샹그릴라 호텔", "香格里拉大酒店", 36.0669, 120.3841], ["천주교당 / 성미카엘 성당", "青岛圣弥厄尔教堂", 36.0676, 120.3143], ["중산로", "中山路", 36.0698, 120.316], ["은어항", "银鱼巷", 36.0707, 120.3128], ["메이다얼", "美达尔烧烤", 36.0701, 120.3155], ["잔교", "栈桥", 36.0611, 120.3162], ["샹그릴라 호텔", "香格里拉大酒店", 36.0669, 120.3841], ["RT-Mart 둔화로점", "大润发敦化路店", 36.0909, 120.3869], ["샹그릴라 호텔", "香格里拉大酒店", 36.0669, 120.3841], ["명월산해간불야성", "明月·山海间不夜城", 36.268, 120.233], ["5.4광장", "五四广场", 36.0626, 120.383], ["샹그릴라 호텔", "香格里拉大酒店", 36.0669, 120.3841]], "DAY 3 · 5/18": [["샹그릴라 호텔", "香格里拉大酒店", 36.0669, 120.3841], ["칭다오 맥주박물관", "青岛啤酒博物馆", 36.0806, 120.345], ["MIXC 만상성", "万象城", 36.0664, 120.3825], ["샹그릴라 호텔", "香格里拉大酒店", 36.0669, 120.3841], ["칭다오 자오둥 국제공항", "青岛胶东国际机场", 36.3619, 120.0882]]};
-const colors = {"DAY 1 · 5/16":"#7B3FC7","DAY 2 · 5/17":"#2E7D32","DAY 3 · 5/18":"#1565C0"};
-
-const map = L.map('map').setView([36.12, 120.34], 11);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  maxZoom: 19,
-  attribution: '&copy; OpenStreetMap contributors'
-}).addTo(map);
-
-let currentLayers = [];
-let currentMarkers = [];
-
-function clearLayers() {
-  currentLayers.forEach(l => map.removeLayer(l));
-  currentLayers = [];
-  currentMarkers = [];
-}
-
-function escapeHtml(str) {
-  return String(str)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
-}
-
-function focusStop(index) {
-  const marker = currentMarkers[index];
-  if (!marker) return;
-  const latlng = marker.getLatLng();
-  map.setView(latlng, 15);
-  marker.openPopup();
-}
-
-function renderStopList(day) {
-  const stops = days[day];
-  const color = colors[day];
-  const list = document.getElementById('stopList');
-  list.innerHTML = stops.map((s, idx) => `
-    <div class="stop-item" onclick="focusStop(${idx})">
-      <div class="stop-num" style="background:${color}">${idx + 1}</div>
-      <div>
-        <div class="stop-name">${escapeHtml(s[0])}</div>
-        <div class="stop-cn">${escapeHtml(s[1])}</div>
-      </div>
-    </div>
-  `).join('');
-}
-
-function showDay(day) {
-  clearLayers();
-  document.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.textContent === day));
-  const stops = days[day];
-  const color = colors[day];
-  const latlngs = stops.map(s => [s[2], s[3]]);
-  const line = L.polyline(latlngs, {color, weight:4, opacity:.85, dashArray:'6,6'}).addTo(map);
-  currentLayers.push(line);
-
-  stops.forEach((s, idx) => {
-    const icon = L.divIcon({
-      className: '',
-      html: `<div style="background:${color};color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:700;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.35)">${idx+1}</div>`,
-      iconSize: [28,28],
-      iconAnchor: [14,14]
-    });
-    const marker = L.marker([s[2], s[3]], {icon}).addTo(map)
-      .bindPopup(`<b>${idx+1}. ${escapeHtml(s[0])}</b><br/>${escapeHtml(s[1])}`);
-    currentLayers.push(marker);
-    currentMarkers.push(marker);
-  });
-
-  map.fitBounds(L.latLngBounds(latlngs), {padding:[70,70]});
-  document.getElementById('summary').innerHTML = `<b>${day}</b><br/>총 ${stops.length}개 지점`;
-  renderStopList(day);
-}
-
-Object.keys(days).forEach((day) => {
-  const btn = document.createElement('button');
-  btn.textContent = day;
-  btn.onclick = () => showDay(day);
-  document.getElementById('buttons').appendChild(btn);
-});
-showDay(Object.keys(days)[0]);
-
-const panel = document.getElementById('panel');
-const togglePanel = document.getElementById('togglePanel');
-
-function updateToggleText() {
-  togglePanel.textContent = panel.classList.contains('collapsed') ? '목록 열기' : '목록 접기';
-}
-
-togglePanel.addEventListener('click', () => {
-  panel.classList.toggle('collapsed');
-  updateToggleText();
-});
-
-if (window.innerWidth <= 640) {
-  panel.classList.add('collapsed');
-  updateToggleText();
-}
-
-document.querySelectorAll('#buttons button').forEach(btn => {
-  btn.addEventListener('click', () => {
-    if (window.innerWidth <= 640) {
-      panel.classList.add('collapsed');
-      updateToggleText();
-    }
-  });
-});
+const days = {"DAY 1 · 5/16":{"weather":"맑음 · 최고 20°C / 최저 12°C","color":"#7B3FC7","stops":[["~13:05","✈ Qingdao Jiaodong International Airport 도착","青岛胶东国际机场","-","",36.3619,120.0882],["13:40~15:00","호텔 이동 및 체크인","青岛香格里拉大酒店","공항 → 호텔 약 50~60분","체크인 변수 고려",36.0669,120.3841],["15:00~16:00","🍖 점심 (완샹청 5층 희가훠궈 or 명가딤섬 L-502) + 헤이티","万象城 / 喜茶","호텔 도보 5~10분","모어요거트B2, 율리안LG",36.0664,120.3825],["16:20~17:00","소어산 전망대","小鱼山观景台","도보","",36.0586,120.3301],["17:00~18:00","대학로 내려오며 산책","大学路网红墙","도보","포토존 + 자유 산책",36.0646,120.3218],["18:20~19:20","타이동 야시장","台东夜市","도보","맥주거래소, 핑크 꿔바로우",36.0847,120.3556],["19:40~20:50","🍖 저녁 (완샹청 5층 와이포지아)","外婆家","도보","중국 가정식",36.0664,120.3825],["22:00~23:00","호텔 수영장","酒店泳池","-","",36.0669,120.3841]]},"DAY 2 · 5/17":{"weather":"대체로 맑음 · 최고 21°C / 최저 13°C","color":"#2E7D32","stops":[["08:00~09:00","🍖 호텔 조식","酒店早餐","-","",36.0669,120.3841],["09:25~10:00","성미카엘 성당","青岛圣弥厄尔教堂","도보","",36.0676,120.3143],["10:00~11:00","중산로 산책","中山路","도보","",36.0698,120.316],["11:20~12:40","🍖 점심 (메이다얼)","美达尔烧烤","-","",36.0701,120.3155],["12:50~13:30","잔교","栈桥","-","",36.0611,120.3162],["14:00~15:00","RT-Mart 쇼핑","大润发敦化路店","도보","맥주/간식 쇼핑",36.0909,120.3869],["15:15~17:00","호텔 휴식 + 수영장","酒店泳池","-","",36.0669,120.3841],["17:00~18:30","🍖 저녁 (완샹쳥 6층 초우초우 훠궈)","湊湊火锅","도보","밀크티 + 훠궈",36.0664,120.3825],["18:40~19:00","패왕차희 / 루싱커피 테이크아웃","霸王茶姬 / 瑞幸咖啡","도보","음료 들고 이동",36.0664,120.3825],["19:30~20:40","레이저쇼 감상 + 해변 산책","奥林匹克帆船中心·奥帆海洋文化旅游区","도보","",36.0588,120.392]]},"DAY 3 · 5/18":{"weather":"약간 흐림 · 최고 21°C / 최저 15°C","color":"#1565C0","stops":[["06:00~07:00","호텔 수영장","酒店泳池","-","",36.0669,120.3841],["07:00~08:00","🍖 객실 배달 아침식사","外卖早餐","-","",36.0669,120.3841],["08:00~10:00","휴식 및 짐 정리","-","-","",36.0669,120.3841],["10:00~10:20","체크아웃 및 짐 보관","酒店前台","-","",36.0669,120.3841],["11:00~11:30","입장 대기 / 기념품샵","登州路","도보","11시 도착 목표",36.0806,120.345],["11:30~12:40","칭다오 맥주박물관","Tsingtao Beer Museum","-","",36.0806,120.345],["13:10~14:10","🍖 점심 (완샹청 5층 루위)","炉鱼","-","브레이크타임 전",36.0664,120.3825],["14:10~15:00","추가 쇼핑 / 카페","万象城","도보","",36.0664,120.3825],["15:00~15:20","호텔 복귀 및 짐 픽업","香格里拉大酒店","도보 5~10분","",36.0669,120.3841],["16:30","공항 도착 추천","青岛胶东国际机场","-","",36.3619,120.0882],["18:30","✈ 출국","-","-","",36.3619,120.0882]]}};
+const map=L.map('map').setView([36.12,120.34],11);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
+let currentLayers=[],currentMarkers=[];
+function clearLayers(){currentLayers.forEach(l=>map.removeLayer(l));currentLayers=[];currentMarkers=[]}
+function esc(str){return String(str).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#039;")}
+function updateToggleText(){togglePanel.textContent=panel.classList.contains('collapsed')?'목록 열기':'목록 접기'}
+function focusStop(i){const m=currentMarkers[i];if(!m)return;map.setView(m.getLatLng(),15);m.openPopup();if(window.innerWidth<=640){panel.classList.add('collapsed');updateToggleText()}}
+function renderStopList(dayKey){const day=days[dayKey],c=day.color;stopList.innerHTML=day.stops.map((s,i)=>`<div class="stop-item" onclick="focusStop(${i})"><div class="stop-num" style="background:${c}">${i+1}</div><div><div class="stop-time">${esc(s[0])}</div><div class="stop-name">${esc(s[1])}</div><div class="stop-cn">${esc(s[2])}</div><div class="stop-meta">${esc(s[3])}${s[4]?' · '+esc(s[4]):''}</div></div></div>`).join('')}
+function showDay(dayKey){clearLayers();document.querySelectorAll('#buttons button').forEach(b=>b.classList.toggle('active',b.textContent===dayKey));const day=days[dayKey],c=day.color,latlngs=day.stops.map(s=>[s[5],s[6]]);
+const line=L.polyline(latlngs,{color:c,weight:4,opacity:.85,dashArray:'6,6'}).addTo(map);currentLayers.push(line);
+day.stops.forEach((s,i)=>{const icon=L.divIcon({className:'',html:`<div style="background:${c};color:white;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:800;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.35)">${i+1}</div>`,iconSize:[28,28],iconAnchor:[14,14]});
+const marker=L.marker([s[5],s[6]],{icon}).addTo(map).bindPopup(`<b>${i+1}. ${esc(s[1])}</b><br/>${esc(s[0])}<br/>${esc(s[2])}<br/>${esc(s[3])}${s[4]?'<br/>'+esc(s[4]):''}`);currentLayers.push(marker);currentMarkers.push(marker)})
+map.fitBounds(L.latLngBounds(latlngs),{padding:[70,70]});summary.innerHTML=`<b>${dayKey}</b><br/>${esc(day.weather)}<br/>총 ${day.stops.length}개 지점`;renderStopList(dayKey);if(window.innerWidth<=640){panel.classList.add('collapsed');updateToggleText()}}
+Object.keys(days).forEach(dayKey=>{const btn=document.createElement('button');btn.textContent=dayKey;btn.onclick=()=>showDay(dayKey);buttons.appendChild(btn)})
+const panel=document.getElementById('panel'),togglePanel=document.getElementById('togglePanel');
+togglePanel.addEventListener('click',()=>{panel.classList.toggle('collapsed');updateToggleText()});
+showDay(Object.keys(days)[0]);if(window.innerWidth<=640){panel.classList.add('collapsed')}updateToggleText();
 </script>
 </body>
 </html>
